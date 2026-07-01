@@ -35,55 +35,140 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .stApp {
-        background: linear-gradient(135deg, #e0f2fe 0%, #fef3c7 50%, #fed7aa 100%);
+    /* ---------- ADA / WCAG 2.1 AA compliant palette ---------- */
+    :root {
+        --ada-bg:            #F8FAFC;
+        --ada-surface:       #FFFFFF;
+        --ada-text:          #0B2545;
+        --ada-text-muted:    #334155;
+        --ada-primary:       #0B5FA5;
+        --ada-primary-dark:  #083D6B;
+        --ada-accent:        #B45309;
+        --ada-success:       #166534;
+        --ada-warning-bg:    #FEF3C7;
+        --ada-warning-fg:    #78350F;
+        --ada-danger:        #991B1B;
+        --ada-border:        #CBD5E1;
+        --ada-focus:         #1D4ED8;
     }
+
+    /* Solid background (no low-contrast gradient behind body text) */
+    .stApp { background: var(--ada-bg); color: var(--ada-text); }
+    body, .stMarkdown, p, li, span, label { color: var(--ada-text); }
+
+    /* Hero panel — dark solid ensures 4.5:1 for white text everywhere */
     .hero {
-        background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #7c3aed 100%);
-        color: white;
+        background: var(--ada-primary-dark);
+        color: #FFFFFF;
         padding: 2rem;
-        border-radius: 1.5rem;
+        border-radius: 1rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 20px 40px -10px rgba(2, 132, 199, 0.4);
+        border: 1px solid var(--ada-primary);
     }
-    .hero h1 { font-size: 2.25rem !important; font-weight: 800; margin: 0.5rem 0; color: white; }
-    .hero p { opacity: 0.92; font-size: 1rem; max-width: 700px; }
+    .hero h1 { font-size: 2.25rem !important; font-weight: 800; margin: 0.5rem 0; color: #FFFFFF; }
+    .hero p  { color: #FFFFFF; opacity: 1; font-size: 1rem; max-width: 700px; }
+
     .badge-pill {
         display: inline-block;
-        background: rgba(255,255,255,0.18);
-        border: 1px solid rgba(255,255,255,0.35);
-        color: white; padding: 0.25rem 0.75rem; border-radius: 9999px;
-        font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+        background: #FFFFFF;
+        color: var(--ada-primary-dark);
+        border: 1px solid #FFFFFF;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
+
+    /* Cards */
     .score-card {
-        background: white; border-radius: 1rem; padding: 1.25rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e0f2fe;
+        background: var(--ada-surface);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        border: 2px solid var(--ada-border);
     }
-    .pillar-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; color: #0c4a6e; }
-    .score-big { font-size: 2rem; font-weight: 800; color: #0284c7; }
+    .pillar-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; color: var(--ada-text); }
+    .score-big    { font-size: 2rem; font-weight: 800; color: var(--ada-primary); }
+
+    /* Warnings — 6.9:1 dark orange on cream */
     .disclaimer-box {
-        background: #fef3c7; border-left: 4px solid #f59e0b;
-        padding: 1rem 1.25rem; border-radius: 0.5rem; color: #78350f; margin: 1rem 0;
+        background: var(--ada-warning-bg);
+        border-left: 6px solid var(--ada-accent);
+        padding: 1rem 1.25rem;
+        border-radius: 0.5rem;
+        color: var(--ada-warning-fg);
+        margin: 1rem 0;
+        font-weight: 500;
     }
+    .disclaimer-box a { color: var(--ada-warning-fg); text-decoration: underline; }
+
+    /* Reference cards */
     .reference-card {
-        background: white; border: 1px solid #e0f2fe; border-radius: 0.75rem;
-        padding: 1rem; margin-bottom: 0.75rem;
+        background: var(--ada-surface);
+        border: 2px solid var(--ada-border);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
     }
+    .reference-card p { color: var(--ada-text-muted); font-size: 0.9rem; }
+
+    /* Pillar tag — 6.8:1 white on ocean blue */
     .pillar-tag {
-        display: inline-block; background: #e0f2fe; color: #075985;
-        padding: 0.15rem 0.5rem; border-radius: 0.375rem;
-        font-size: 0.7rem; font-weight: 600; margin-right: 0.25rem; margin-top: 0.25rem;
+        display: inline-block;
+        background: var(--ada-primary);
+        color: #FFFFFF;
+        padding: 0.2rem 0.55rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-right: 0.35rem;
+        margin-top: 0.35rem;
     }
+
+    /* Contact card */
     .contact-card {
-        background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
-        padding: 1.5rem; border-radius: 1rem; border: 1px solid #bae6fd; margin-top: 1rem;
+        background: var(--ada-surface);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        border: 2px solid var(--ada-border);
+        margin-top: 1rem;
     }
-    div[data-testid="stMetricValue"] { font-size: 1.75rem; font-weight: 800; }
+    .contact-card a { color: var(--ada-primary); text-decoration: underline; }
+
+    /* Links everywhere — always underlined, always high-contrast */
+    a { color: var(--ada-primary); text-decoration: underline; }
+    a:hover { color: var(--ada-primary-dark); }
+
+    /* Buttons — Streamlit primary */
+    .stButton > button[kind="primary"] {
+        background: var(--ada-primary) !important;
+        color: #FFFFFF !important;
+        border: 2px solid var(--ada-primary-dark) !important;
+        font-weight: 700 !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        background: var(--ada-primary-dark) !important;
+    }
+
+    /* Visible keyboard focus (WCAG 2.4.7) */
+    *:focus-visible {
+        outline: 3px solid var(--ada-focus) !important;
+        outline-offset: 2px !important;
+        border-radius: 4px;
+    }
+
+    /* Streamlit metric widget */
+    div[data-testid="stMetricValue"] {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--ada-primary);
+    }
+    div[data-testid="stMetricLabel"] { color: var(--ada-text); font-weight: 600; }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 # ----------------------------------------------------------------------------
 # Session state — disclaimer gate
 # ----------------------------------------------------------------------------
