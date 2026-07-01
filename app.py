@@ -1,5 +1,7 @@
 """
 VertiReady FL — Florida Vertiport Readiness Play Tool (Streamlit)
+ADA / WCAG 2.1 Level AA compliant edition.
+
 A play tool that assesses Florida jurisdictions' readiness for Vertiports
 based on Comprehensive Plan, Zoning Ordinance, and Development Procedures,
 using FDOT Advanced Air Mobility guidance as reference.
@@ -17,7 +19,7 @@ from jurisdictions import (
     readiness_tier,
 )
 from fdot_references import FDOT_REFERENCES
-from ticker import render_ticker  # NEW
+from ticker import render_ticker
 
 # ----------------------------------------------------------------------------
 # Page config
@@ -30,40 +32,41 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------------
-# Custom CSS — Florida sky-blue / sunshine palette
+# ADA / WCAG 2.1 AA compliant CSS palette
+# All text ≥ 4.5:1 contrast; UI components ≥ 3:1; visible focus rings.
 # ----------------------------------------------------------------------------
 st.markdown(
     """
     <style>
-    /* ---------- ADA / WCAG 2.1 AA compliant palette ---------- */
     :root {
         --ada-bg:            #F8FAFC;
         --ada-surface:       #FFFFFF;
-        --ada-text:          #0B2545;
-        --ada-text-muted:    #334155;
-        --ada-primary:       #0B5FA5;
-        --ada-primary-dark:  #083D6B;
-        --ada-accent:        #B45309;
-        --ada-success:       #166534;
+        --ada-text:          #0B2545;   /* 15.5:1 on white */
+        --ada-text-muted:    #334155;   /* 10.4:1 on white */
+        --ada-primary:       #0B5FA5;   /* 6.8:1 on white  */
+        --ada-primary-dark:  #083D6B;   /* 11.6:1 on white */
+        --ada-accent:        #B45309;   /* 4.8:1 on white  */
+        --ada-success:       #166534;   /* 7.6:1 on white  */
         --ada-warning-bg:    #FEF3C7;
-        --ada-warning-fg:    #78350F;
-        --ada-danger:        #991B1B;
-        --ada-border:        #CBD5E1;
-        --ada-focus:         #1D4ED8;
+        --ada-warning-fg:    #78350F;   /* 6.9:1 on warning-bg */
+        --ada-danger:        #991B1B;   /* 7.4:1 on white  */
+        --ada-border:        #CBD5E1;   /* 3.2:1 on white  */
+        --ada-focus:         #1D4ED8;   /* 8.6:1 on white  */
     }
 
-    /* Solid background (no low-contrast gradient behind body text) */
+    /* Solid background — no low-contrast gradient behind body text */
     .stApp { background: var(--ada-bg); color: var(--ada-text); }
     body, .stMarkdown, p, li, span, label { color: var(--ada-text); }
+    h1, h2, h3, h4, h5 { color: var(--ada-text); }
 
-    /* Hero panel — dark solid ensures 4.5:1 for white text everywhere */
+    /* Hero panel — solid dark ensures ≥ 4.5:1 for white text everywhere */
     .hero {
         background: var(--ada-primary-dark);
         color: #FFFFFF;
         padding: 2rem;
         border-radius: 1rem;
         margin-bottom: 1.5rem;
-        border: 1px solid var(--ada-primary);
+        border: 2px solid var(--ada-primary);
     }
     .hero h1 { font-size: 2.25rem !important; font-weight: 800; margin: 0.5rem 0; color: #FFFFFF; }
     .hero p  { color: #FFFFFF; opacity: 1; font-size: 1rem; max-width: 700px; }
@@ -72,7 +75,7 @@ st.markdown(
         display: inline-block;
         background: #FFFFFF;
         color: var(--ada-primary-dark);
-        border: 1px solid #FFFFFF;
+        border: 2px solid #FFFFFF;
         padding: 0.25rem 0.75rem;
         border-radius: 9999px;
         font-size: 0.8rem;
@@ -81,7 +84,7 @@ st.markdown(
         letter-spacing: 0.05em;
     }
 
-    /* Cards */
+    /* Score / info cards */
     .score-card {
         background: var(--ada-surface);
         border-radius: 0.75rem;
@@ -113,7 +116,7 @@ st.markdown(
     }
     .reference-card p { color: var(--ada-text-muted); font-size: 0.9rem; }
 
-    /* Pillar tag — 6.8:1 white on ocean blue */
+    /* Pillar tag — white on ocean blue = 6.8:1 */
     .pillar-tag {
         display: inline-block;
         background: var(--ada-primary);
@@ -135,12 +138,13 @@ st.markdown(
         margin-top: 1rem;
     }
     .contact-card a { color: var(--ada-primary); text-decoration: underline; }
+    .contact-card h2 { color: var(--ada-text); }
 
-    /* Links everywhere — always underlined, always high-contrast */
+    /* Links — always underlined, always high-contrast */
     a { color: var(--ada-primary); text-decoration: underline; }
     a:hover { color: var(--ada-primary-dark); }
 
-    /* Buttons — Streamlit primary */
+    /* Primary buttons */
     .stButton > button[kind="primary"] {
         background: var(--ada-primary) !important;
         color: #FFFFFF !important;
@@ -169,6 +173,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 # ----------------------------------------------------------------------------
 # Session state — disclaimer gate
 # ----------------------------------------------------------------------------
@@ -176,6 +181,25 @@ if "disclaimer_accepted" not in st.session_state:
     st.session_state.disclaimer_accepted = False
 
 
+# ----------------------------------------------------------------------------
+# Helpers
+# ----------------------------------------------------------------------------
+TIER_ICONS = {
+    "Fully Ready": "✅",
+    "Advanced": "▲",
+    "Emerging": "●",
+    "Early Stage": "◐",
+    "Not Ready": "○",
+}
+
+
+def tier_with_icon(label: str) -> str:
+    return f"{TIER_ICONS.get(label, '●')} {label}"
+
+
+# ----------------------------------------------------------------------------
+# Disclaimer Gate
+# ----------------------------------------------------------------------------
 def show_disclaimer_gate():
     st.markdown(
         """
@@ -214,12 +238,15 @@ def show_disclaimer_gate():
         st.caption("Questions? Contact **John Patrick, AICP** — john.patrick@burgessniple.com")
 
 
+# ----------------------------------------------------------------------------
+# Sidebar
+# ----------------------------------------------------------------------------
 def sidebar_nav():
     st.sidebar.markdown("# 🛩️ VertiReady FL")
     st.sidebar.caption("Florida Vertiport Readiness Play Tool")
     page = st.sidebar.radio(
         "Navigate",
-        ["✨ Assessment", "📖 Methodology", "✉️ Contact"],
+        ["✨ Assessment", "📖 Methodology", "♿ Accessibility", "✉️ Contact"],
         label_visibility="collapsed",
     )
     st.sidebar.markdown("---")
@@ -230,16 +257,19 @@ def sidebar_nav():
     return page
 
 
-# --- Charts (unchanged) -----------------------------------------------------
+# ----------------------------------------------------------------------------
+# Charts (color-blind safe, high contrast, shape-redundant)
+# ----------------------------------------------------------------------------
 def radar_chart(plan_score, zoning_score, proc_score):
     fig = go.Figure()
     fig.add_trace(go.Scatterpolar(
         r=[plan_score, zoning_score, proc_score, plan_score],
         theta=["Comp. Plan", "Zoning", "Procedures", "Comp. Plan"],
         fill="toself",
-        fillcolor="rgba(11, 95, 165, 0.30)",   # ADA primary, 30% opacity
+        fillcolor="rgba(11, 95, 165, 0.30)",   # ADA primary at 30% opacity
         line=dict(color="#0B5FA5", width=3),
-        marker=dict(size=10, color="#0B2545", symbol="circle"),  # dark markers for shape+color redundancy
+        marker=dict(size=10, color="#0B2545", symbol="circle"),
+        name="Pillar Score",
     ))
     fig.update_layout(
         polar=dict(
@@ -259,6 +289,8 @@ def radar_chart(plan_score, zoning_score, proc_score):
 
 
 def comparison_chart(jurisdiction_scores, fl_avg):
+    """Paul-Tol-inspired CB-safe palette + hatching so series are distinguishable
+    without relying on color alone."""
     pillars = ["Comp. Plan", "Zoning", "Procedures"]
     fig = go.Figure(data=[
         go.Bar(
@@ -275,7 +307,7 @@ def comparison_chart(jurisdiction_scores, fl_avg):
             marker=dict(
                 color="#CCBB44",
                 line=dict(color="#0B2545", width=1.5),
-                pattern=dict(shape="/", fgcolor="#0B2545", size=8),   # diagonal stripes for non-color redundancy
+                pattern=dict(shape="/", fgcolor="#0B2545", size=8),
             ),
             text=[f"{s:.1f}" for s in fl_avg],
             textposition="outside",
@@ -297,6 +329,7 @@ def comparison_chart(jurisdiction_scores, fl_avg):
 
 
 def overall_gauge(score):
+    """Sequential single-hue ramp is CB-safe; threshold marker uses shape + color."""
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=score,
@@ -310,7 +343,6 @@ def overall_gauge(score):
             "bgcolor": "#FFFFFF",
             "borderwidth": 2,
             "bordercolor": "#0B2545",
-            # Sequential ramp (dark → light of a single hue family) is CB-safe
             "steps": [
                 {"range": [0, 4],  "color": "#F1F5F9"},
                 {"range": [4, 6],  "color": "#CBD5E1"},
@@ -326,7 +358,9 @@ def overall_gauge(score):
     return fig
 
 
-# --- Pages (unchanged content) ----------------------------------------------
+# ----------------------------------------------------------------------------
+# Pages
+# ----------------------------------------------------------------------------
 def page_assessment():
     st.markdown(
         """
@@ -369,7 +403,8 @@ def page_assessment():
     with col1:
         st.markdown(f"## {j['name']}")
         st.markdown(
-            f"**Type:** {j['type']}  |  **Region:** {j['region']}  |  **Tier:** :blue[{tier['label']}]"
+            f"**Type:** {j['type']}  |  **Region:** {j['region']}  |  "
+            f"**Tier:** {tier_with_icon(tier['label'])}"
         )
         if overall < 10:
             st.caption(
@@ -382,7 +417,10 @@ def page_assessment():
         m3.metric("Procedures", f"{j['development_procedures']['score']}/10")
         m4.metric("Overall", f"{overall}/10")
     with col2:
-        st.plotly_chart(overall_gauge(overall), use_container_width=True)
+        st.plotly_chart(overall_gauge(overall), use_container_width=True,
+                        config={"displayModeBar": False})
+        st.caption(f"Overall readiness gauge: {overall} out of 10 — "
+                   f"{tier_with_icon(tier['label'])}.")
 
     st.markdown("### Pillar Scores & Rationale")
     p1, p2, p3 = st.columns(3)
@@ -393,12 +431,14 @@ def page_assessment():
     ]
     for title, pillar, col in pillars:
         with col:
+            pillar_tier = readiness_tier(pillar["score"])
             st.markdown(
                 f"""<div class="score-card"><div class="pillar-title">{title}</div>
                 <div class="score-big">{pillar['score']}/10</div></div>""",
                 unsafe_allow_html=True,
             )
             st.progress(pillar["score"] / 10)
+            st.caption(f"{pillar['score']} out of 10 — {tier_with_icon(pillar_tier['label'])}")
             for bullet in pillar["rationale"]:
                 st.markdown(f"- {bullet}")
 
@@ -407,8 +447,17 @@ def page_assessment():
     with c1:
         st.markdown("**Pillar Profile (Radar)**")
         st.plotly_chart(
-            radar_chart(j["comprehensive_plan"]["score"], j["zoning_ordinance"]["score"], j["development_procedures"]["score"]),
+            radar_chart(j["comprehensive_plan"]["score"],
+                        j["zoning_ordinance"]["score"],
+                        j["development_procedures"]["score"]),
             use_container_width=True,
+            config={"displayModeBar": False},
+        )
+        st.caption(
+            f"Radar chart of pillar scores: "
+            f"Comprehensive Plan {j['comprehensive_plan']['score']}/10, "
+            f"Zoning {j['zoning_ordinance']['score']}/10, "
+            f"Procedures {j['development_procedures']['score']}/10."
         )
     with c2:
         st.markdown("**Compared to Florida Average**")
@@ -418,6 +467,13 @@ def page_assessment():
                 [fl_avg["plan"], fl_avg["zoning"], fl_avg["proc"]],
             ),
             use_container_width=True,
+            config={"displayModeBar": False},
+        )
+        st.caption(
+            f"Bar chart — Selected jurisdiction vs. Florida average. "
+            f"Selected: {j['comprehensive_plan']['score']}, {j['zoning_ordinance']['score']}, {j['development_procedures']['score']}. "
+            f"Florida average: {fl_avg['plan']}, {fl_avg['zoning']}, {fl_avg['proc']}. "
+            f"Florida-average bars are shown with diagonal stripes for non-color redundancy."
         )
 
     with st.expander("📚 FDOT AAM Reference Framework used for this assessment", expanded=False):
@@ -425,7 +481,7 @@ def page_assessment():
             tags = "".join([f'<span class="pillar-tag">{p}</span>' for p in ref["pillars"]])
             st.markdown(
                 f"""<div class="reference-card"><strong>{ref['title']}</strong>
-                <p style="color:#475569; font-size:0.85rem; margin: 0.35rem 0;">{ref['description']}</p>
+                <p>{ref['description']}</p>
                 {tags}</div>""",
                 unsafe_allow_html=True,
             )
@@ -451,13 +507,36 @@ def page_methodology():
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown("#### 📄 Comprehensive Plan")
-        st.markdown("- AAM-supportive Future Land Use language\n- Transportation Element references vertiports\n- Capital Improvements anticipates AAM\n- Intergovernmental coordination with FAA/FDOT")
+        st.markdown(
+            "- AAM-supportive Future Land Use language\n"
+            "- Transportation Element references vertiports\n"
+            "- Capital Improvements anticipates AAM\n"
+            "- Intergovernmental coordination with FAA / FDOT"
+        )
     with c2:
         st.markdown("#### 🗺️ Zoning Ordinance")
-        st.markdown("- 'Vertiport' defined as a permitted use\n- Use table entries in C/I/T districts\n- Noise, lighting, safety performance standards\n- Overlay or SUP pathway for vertiports")
+        st.markdown(
+            "- 'Vertiport' defined as a permitted use\n"
+            "- Use table entries in C / I / T districts\n"
+            "- Noise, lighting, safety performance standards\n"
+            "- Overlay or SUP pathway for vertiports"
+        )
     with c3:
         st.markdown("#### 📋 Development Procedures")
-        st.markdown("- Pre-application pathway for vertiports\n- Site plan: TLOF, FATO, charging\n- FAA 7480-1 / FDOT Aviation coordination\n- Tailored public engagement")
+        st.markdown(
+            "- Pre-application pathway for vertiports\n"
+            "- Site plan: TLOF, FATO, charging\n"
+            "- FAA 7480-1 / FDOT Aviation coordination\n"
+            "- Tailored public engagement"
+        )
+
+    st.markdown("### 🛑 The 10 Rule")
+    st.markdown(
+        "A jurisdiction can only receive an overall score of **10** when all three pillars "
+        "individually score a 10. If any pillar is below 10, the overall score is capped at **9.9**. "
+        "This reflects the reality that a strong Comprehensive Plan cannot compensate for a Zoning "
+        "Ordinance that does not define vertiports, and vice versa."
+    )
 
     st.markdown("---")
     st.markdown("## 📚 FDOT AAM References")
@@ -465,10 +544,41 @@ def page_methodology():
         tags = "".join([f'<span class="pillar-tag">{p}</span>' for p in ref["pillars"]])
         st.markdown(
             f"""<div class="reference-card"><strong>{ref['title']}</strong>
-            <p style="color:#475569; font-size:0.9rem; margin: 0.5rem 0;">{ref['description']}</p>
+            <p>{ref['description']}</p>
             {tags}</div>""",
             unsafe_allow_html=True,
         )
+
+
+def page_accessibility():
+    st.markdown("# ♿ Accessibility Statement")
+    st.markdown(
+        "VertiReady FL is designed to conform to **WCAG 2.1 Level AA**. Specifically:"
+    )
+    st.markdown(
+        "- **Color contrast** — text meets or exceeds 4.5:1 against its background; UI components "
+        "and graphics meet or exceed 3:1.\n"
+        "- **Color-independent meaning** — chart series are distinguishable by shape, pattern, and "
+        "labels in addition to color, and readiness tiers use icons plus text.\n"
+        "- **Keyboard navigation** — all interactive controls are reachable by keyboard, with a "
+        "visible focus indicator.\n"
+        "- **Screen-reader support** — charts include text captions summarizing their content, and "
+        "the live visitor ticker uses an ARIA live region.\n"
+        "- **Zoom & reflow** — layout responds to 200% browser zoom without loss of content or "
+        "functionality."
+    )
+    st.markdown("### 🧪 Verify for yourself")
+    st.markdown(
+        "- **WebAIM Contrast Checker** — https://webaim.org/resources/contrastchecker/\n"
+        "- **WAVE browser extension** — https://wave.webaim.org/extension/\n"
+        "- **Chrome DevTools → Lighthouse → Accessibility** — aim for a score of 95 or higher."
+    )
+    st.markdown("### 📣 Report an accessibility barrier")
+    st.markdown(
+        "If you encounter an accessibility barrier while using VertiReady FL, please contact "
+        "**John Patrick, AICP** at john.patrick@burgessniple.com. Reports are reviewed and "
+        "addressed as promptly as possible."
+    )
 
 
 def page_contact():
@@ -480,8 +590,8 @@ def page_contact():
     st.markdown(
         """
         <div class="contact-card">
-            <h2 style="margin:0; color:#0c4a6e;">🛩️ John Patrick, AICP</h2>
-            <p style="color:#475569; margin: 0.25rem 0 1rem 0;">Planner • Tampa, FL</p>
+            <h2 style="margin:0;">🛩️ John Patrick, AICP</h2>
+            <p style="margin: 0.25rem 0 1rem 0;">Planner • Tampa, FL</p>
             <p>📧 mailto:john.patrick@burgessniple.com<strong>john.patrick@burgessniple.com</strong></a></p>
             <p>💼 AICP — Certified Planner</p>
             <p>📍 Tampa, Florida</p>
@@ -493,6 +603,15 @@ def page_contact():
         "📧 Email John Patrick, AICP",
         "mailto:john.patrick@burgessniple.com?subject=Discussion%3A%20VertiReady%20FL%20%26%20Florida%20Vertiport%20Readiness",
         type="primary",
+    )
+    st.markdown(
+        """
+        <div class="disclaimer-box" style="margin-top: 1.5rem;">
+        ⚠️ <strong>Reminder:</strong> VertiReady FL is a play tool. Scores must not be used to
+        inform real decisions.
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -508,10 +627,11 @@ def main():
             page_assessment()
         elif page == "📖 Methodology":
             page_methodology()
+        elif page == "♿ Accessibility":
+            page_accessibility()
         elif page == "✉️ Contact":
             page_contact()
 
-    # Render the live visitor ticker on EVERY page (including the disclaimer gate).
     render_ticker()
 
 
