@@ -104,39 +104,30 @@ def render_ticker() -> None:
     st.markdown(
         f"""
         <style>
-        .vr-ticker {{
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 9999;
-            background: linear-gradient(90deg, #0284c7 0%, #4f46e5 50%, #7c3aed 100%);
-            color: white;
-            padding: 0.6rem 1.5rem;
-            box-shadow: 0 -8px 24px -12px rgba(2, 132, 199, 0.5);
-            border-top: 1px solid rgba(186, 230, 253, 0.7);
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            backdrop-filter: blur(6px);
-        }}
-        .vr-ticker-left, .vr-ticker-right {{
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }}
-        .vr-dot {{
-            position: relative;
-            display: inline-block;
-            height: 10px;
-            width: 10px;
-            border-radius: 9999px;
-            background: #6ee7b7;
-            box-shadow: 0 0 0 0 rgba(110, 231, 183, 0.7);
-            animation: vr-pulse 1.6s infinite;
-        }}
+.vr-ticker {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 9999;
+    background: #083D6B;                  /* dark ocean, 11.6:1 for white text */
+    color: #FFFFFF;
+    padding: 0.7rem 1.5rem;
+    box-shadow: 0 -6px 18px -8px rgba(0,0,0,0.4);
+    border-top: 3px solid #B45309;        /* amber accent for a visible edge */
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+.vr-dot {
+    display: inline-block;
+    height: 12px; width: 12px;
+    border-radius: 9999px;
+    background: #86EFAC;                  /* light green + text says "LIVE" so not color-only */
+    border: 2px solid #FFFFFF;            /* border ensures visible against dark bar */
+    animation: vr-pulse 1.6s infinite;
+}
         @keyframes vr-pulse {{
             0%   {{ box-shadow: 0 0 0 0   rgba(110, 231, 183, 0.7); }}
             70%  {{ box-shadow: 0 0 0 12px rgba(110, 231, 183, 0);   }}
