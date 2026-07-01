@@ -68,8 +68,23 @@ st.markdown(
         margin-bottom: 1.5rem;
         border: 2px solid var(--ada-primary);
     }
-    .hero h1 { font-size: 2.25rem !important; font-weight: 800; margin: 0.5rem 0; color: #FFFFFF; }
-    .hero p  { color: #FFFFFF; opacity: 1; font-size: 1rem; max-width: 700px; }
+.hero, .hero * { color: #FFFFFF !important; }
+.hero h1 {
+    font-size: 2.25rem !important;
+    font-weight: 800 !important;
+    margin: 0.5rem 0 !important;
+    color: #FFFFFF !important;
+}
+.hero p {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+    font-size: 1rem !important;
+    max-width: 700px;
+}
+.hero .badge-pill {
+    color: #083D6B !important;   /* keep the pill's dark-on-white contrast */
+    background: #FFFFFF !important;
+}
 
     .badge-pill {
         display: inline-block;
