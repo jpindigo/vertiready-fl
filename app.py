@@ -2,9 +2,12 @@
 VertiReady FL — Florida Vertiport Readiness Play Tool (Streamlit)
 ADA / WCAG 2.1 Level AA compliant edition.
 
-A play tool that assesses Florida jurisdictions' readiness for Vertiports
-based on Comprehensive Plan, Zoning Ordinance, and Development Procedures,
-using FDOT Advanced Air Mobility guidance as reference.
+- Solid ADA-safe palette
+- Hero panel headline & paragraph forced WHITE
+- All other body text forced BLACK for maximum readability
+- Color-blind-safe chart palette with shape/pattern redundancy
+- Accessibility statement page
+- Accessible live visitor ticker
 
 Contact: John Patrick, AICP — john.patrick@burgessniple.com
 """
@@ -32,8 +35,7 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------------
-# ADA / WCAG 2.1 AA compliant CSS palette
-# All text ≥ 4.5:1 contrast; UI components ≥ 3:1; visible focus rings.
+# ADA / WCAG 2.1 AA compliant CSS
 # ----------------------------------------------------------------------------
 st.markdown(
     """
@@ -41,8 +43,8 @@ st.markdown(
     :root {
         --ada-bg:            #F8FAFC;
         --ada-surface:       #FFFFFF;
-        --ada-text:          #0B2545;   /* 15.5:1 on white */
-        --ada-text-muted:    #334155;   /* 10.4:1 on white */
+        --ada-text:          #000000;   /* pure black body text */
+        --ada-text-muted:    #000000;   /* also black — no gray */
         --ada-primary:       #0B5FA5;   /* 6.8:1 on white  */
         --ada-primary-dark:  #083D6B;   /* 11.6:1 on white */
         --ada-accent:        #B45309;   /* 4.8:1 on white  */
@@ -50,27 +52,49 @@ st.markdown(
         --ada-warning-bg:    #FEF3C7;
         --ada-warning-fg:    #78350F;   /* 6.9:1 on warning-bg */
         --ada-danger:        #991B1B;   /* 7.4:1 on white  */
-        --ada-border:        #CBD5E1;   /* 3.2:1 on white  */
-        --ada-focus:         #1D4ED8;   /* 8.6:1 on white  */
+        --ada-border:        #CBD5E1;
+        --ada-focus:         #1D4ED8;
     }
 
-    /* Solid background — no low-contrast gradient behind body text */
-    .stApp { background: var(--ada-bg); color: var(--ada-text); }
-    body, .stMarkdown, p, li, span, label { color: var(--ada-text); }
-    h1, h2, h3, h4, h5 { color: var(--ada-text); }
+    /* Base background */
+    .stApp { background: var(--ada-bg); }
 
-    /* Hero panel — solid dark ensures ≥ 4.5:1 for white text everywhere */
+    /* ------ Force all body text to BLACK except inside dark panels ------ */
+    .stApp, .stApp p, .stApp li, .stApp span, .stApp label,
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
+    .stMarkdown, .stMarkdown p, .stMarkdown li,
+    div[data-testid="stMetricLabel"],
+    div[data-testid="stCaptionContainer"],
+    .stCaption, small {
+        color: #000000 !important;
+    }
+
+    /* ------ Hero panel: dark solid background, WHITE text ------ */
     .hero {
         background: var(--ada-primary-dark);
-        color: #FFFFFF;
         padding: 2rem;
         border-radius: 1rem;
         margin-bottom: 1.5rem;
         border: 2px solid var(--ada-primary);
     }
-    .hero h1 { font-size: 2.25rem !important; font-weight: 800; margin: 0.5rem 0; color: #FFFFFF; }
-    .hero p  { color: #FFFFFF; opacity: 1; font-size: 1rem; max-width: 700px; }
-
+    .hero, .hero * { color: #FFFFFF !important; }
+    .hero h1 {
+        font-size: 2.25rem !important;
+        font-weight: 800 !important;
+        margin: 0.5rem 0 !important;
+        color: #FFFFFF !important;
+    }
+    .hero p {
+        color: #FFFFFF !important;
+        opacity: 1 !important;
+        font-size: 1rem !important;
+        max-width: 700px;
+    }
+    /* Badge stays dark-on-white for contrast against the white pill */
+    .hero .badge-pill {
+        color: #083D6B !important;
+        background: #FFFFFF !important;
+    }
     .badge-pill {
         display: inline-block;
         background: #FFFFFF;
@@ -91,20 +115,20 @@ st.markdown(
         padding: 1.25rem;
         border: 2px solid var(--ada-border);
     }
-    .pillar-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; color: var(--ada-text); }
-    .score-big    { font-size: 2rem; font-weight: 800; color: var(--ada-primary); }
+    .pillar-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; color: #000000 !important; }
+    .score-big    { font-size: 2rem; font-weight: 800; color: var(--ada-primary) !important; }
 
-    /* Warnings — 6.9:1 dark orange on cream */
+    /* Warning / disclaimer boxes keep their warm brown text */
     .disclaimer-box {
         background: var(--ada-warning-bg);
         border-left: 6px solid var(--ada-accent);
         padding: 1rem 1.25rem;
         border-radius: 0.5rem;
-        color: var(--ada-warning-fg);
         margin: 1rem 0;
         font-weight: 500;
     }
-    .disclaimer-box a { color: var(--ada-warning-fg); text-decoration: underline; }
+    .disclaimer-box, .disclaimer-box * { color: var(--ada-warning-fg) !important; }
+    .disclaimer-box a { text-decoration: underline; }
 
     /* Reference cards */
     .reference-card {
@@ -114,13 +138,13 @@ st.markdown(
         padding: 1rem;
         margin-bottom: 0.75rem;
     }
-    .reference-card p { color: var(--ada-text-muted); font-size: 0.9rem; }
+    .reference-card, .reference-card * { color: #000000 !important; }
 
     /* Pillar tag — white on ocean blue = 6.8:1 */
     .pillar-tag {
         display: inline-block;
         background: var(--ada-primary);
-        color: #FFFFFF;
+        color: #FFFFFF !important;
         padding: 0.2rem 0.55rem;
         border-radius: 0.25rem;
         font-size: 0.75rem;
@@ -137,12 +161,12 @@ st.markdown(
         border: 2px solid var(--ada-border);
         margin-top: 1rem;
     }
-    .contact-card a { color: var(--ada-primary); text-decoration: underline; }
-    .contact-card h2 { color: var(--ada-text); }
+    .contact-card, .contact-card * { color: #000000 !important; }
+    .contact-card a { color: var(--ada-primary) !important; text-decoration: underline; }
 
-    /* Links — always underlined, always high-contrast */
-    a { color: var(--ada-primary); text-decoration: underline; }
-    a:hover { color: var(--ada-primary-dark); }
+    /* Links — always underlined, always high-contrast blue */
+    a { color: var(--ada-primary) !important; text-decoration: underline !important; }
+    a:hover { color: var(--ada-primary-dark) !important; }
 
     /* Primary buttons */
     .stButton > button[kind="primary"] {
@@ -166,9 +190,9 @@ st.markdown(
     div[data-testid="stMetricValue"] {
         font-size: 1.75rem;
         font-weight: 800;
-        color: var(--ada-primary);
+        color: var(--ada-primary) !important;
     }
-    div[data-testid="stMetricLabel"] { color: var(--ada-text); font-weight: 600; }
+    div[data-testid="stMetricLabel"] { color: #000000 !important; font-weight: 600; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -258,7 +282,7 @@ def sidebar_nav():
 
 
 # ----------------------------------------------------------------------------
-# Charts (color-blind safe, high contrast, shape-redundant)
+# Charts — color-blind safe, high contrast, shape-redundant
 # ----------------------------------------------------------------------------
 def radar_chart(plan_score, zoning_score, proc_score):
     fig = go.Figure()
@@ -266,17 +290,17 @@ def radar_chart(plan_score, zoning_score, proc_score):
         r=[plan_score, zoning_score, proc_score, plan_score],
         theta=["Comp. Plan", "Zoning", "Procedures", "Comp. Plan"],
         fill="toself",
-        fillcolor="rgba(11, 95, 165, 0.30)",   # ADA primary at 30% opacity
+        fillcolor="rgba(11, 95, 165, 0.30)",
         line=dict(color="#0B5FA5", width=3),
-        marker=dict(size=10, color="#0B2545", symbol="circle"),
+        marker=dict(size=10, color="#000000", symbol="circle"),
         name="Pillar Score",
     ))
     fig.update_layout(
         polar=dict(
             radialaxis=dict(visible=True, range=[0, 10],
-                            tickfont=dict(size=12, color="#0B2545"),
+                            tickfont=dict(size=12, color="#000000"),
                             gridcolor="#CBD5E1"),
-            angularaxis=dict(tickfont=dict(size=13, color="#0B2545", family="Arial Black"),
+            angularaxis=dict(tickfont=dict(size=13, color="#000000", family="Arial Black"),
                              gridcolor="#CBD5E1"),
             bgcolor="#FFFFFF",
         ),
@@ -289,60 +313,60 @@ def radar_chart(plan_score, zoning_score, proc_score):
 
 
 def comparison_chart(jurisdiction_scores, fl_avg):
-    """Paul-Tol-inspired CB-safe palette + hatching so series are distinguishable
-    without relying on color alone."""
+    """CB-safe pairing + hatching so series are distinguishable without color."""
     pillars = ["Comp. Plan", "Zoning", "Procedures"]
     fig = go.Figure(data=[
         go.Bar(
             name="Selected Jurisdiction",
             x=pillars, y=jurisdiction_scores,
-            marker=dict(color="#4477AA", line=dict(color="#0B2545", width=1.5)),
+            marker=dict(color="#4477AA", line=dict(color="#000000", width=1.5)),
             text=[f"{s:.1f}" for s in jurisdiction_scores],
             textposition="outside",
-            textfont=dict(color="#0B2545", size=13, family="Arial Black"),
+            textfont=dict(color="#000000", size=13, family="Arial Black"),
         ),
         go.Bar(
             name="Florida Average",
             x=pillars, y=fl_avg,
             marker=dict(
                 color="#CCBB44",
-                line=dict(color="#0B2545", width=1.5),
-                pattern=dict(shape="/", fgcolor="#0B2545", size=8),
+                line=dict(color="#000000", width=1.5),
+                pattern=dict(shape="/", fgcolor="#000000", size=8),
             ),
             text=[f"{s:.1f}" for s in fl_avg],
             textposition="outside",
-            textfont=dict(color="#0B2545", size=13, family="Arial Black"),
+            textfont=dict(color="#000000", size=13, family="Arial Black"),
         ),
     ])
     fig.update_layout(
         barmode="group",
         yaxis=dict(range=[0, 10.5], title="Score (1–10)",
-                   tickfont=dict(color="#0B2545"), gridcolor="#CBD5E1"),
-        xaxis=dict(tickfont=dict(color="#0B2545", size=13)),
+                   tickfont=dict(color="#000000"),
+                   titlefont=dict(color="#000000"),
+                   gridcolor="#CBD5E1"),
+        xaxis=dict(tickfont=dict(color="#000000", size=13)),
         height=340,
         margin=dict(l=40, r=20, t=30, b=40),
         paper_bgcolor="#FFFFFF",
         plot_bgcolor="#FFFFFF",
-        legend=dict(orientation="h", y=1.15, font=dict(color="#0B2545", size=13)),
+        legend=dict(orientation="h", y=1.15, font=dict(color="#000000", size=13)),
     )
     return fig
 
 
 def overall_gauge(score):
-    """Sequential single-hue ramp is CB-safe; threshold marker uses shape + color."""
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=score,
         domain={"x": [0, 1], "y": [0, 1]},
-        title={"text": "Overall Readiness", "font": {"size": 16, "color": "#0B2545"}},
-        number={"font": {"color": "#0B2545", "size": 40}},
+        title={"text": "Overall Readiness", "font": {"size": 16, "color": "#000000"}},
+        number={"font": {"color": "#000000", "size": 40}},
         gauge={
-            "axis": {"range": [0, 10], "tickwidth": 1, "tickcolor": "#0B2545",
-                     "tickfont": {"color": "#0B2545"}},
+            "axis": {"range": [0, 10], "tickwidth": 1, "tickcolor": "#000000",
+                     "tickfont": {"color": "#000000"}},
             "bar": {"color": "#0B5FA5"},
             "bgcolor": "#FFFFFF",
             "borderwidth": 2,
-            "bordercolor": "#0B2545",
+            "bordercolor": "#000000",
             "steps": [
                 {"range": [0, 4],  "color": "#F1F5F9"},
                 {"range": [4, 6],  "color": "#CBD5E1"},
