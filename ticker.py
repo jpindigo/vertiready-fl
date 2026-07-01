@@ -98,11 +98,11 @@ def render_ticker() -> None:
             position: fixed;
             left: 0; right: 0; bottom: 0;
             z-index: 9999;
-            background: #083D6B;             /* 11.6:1 vs white text */
+            background: #083D6B;
             color: #FFFFFF;
             padding: 0.7rem 1.5rem;
             box-shadow: 0 -6px 18px -8px rgba(0,0,0,0.4);
-            border-top: 3px solid #B45309;   /* amber accent edge (non-color-only cue) */
+            border-top: 3px solid #B45309;
             font-size: 0.9rem;
             font-weight: 600;
             display: flex;
@@ -110,6 +110,7 @@ def render_ticker() -> None:
             align-items: center;
             gap: 1rem;
         }}
+        .vr-ticker, .vr-ticker * {{ color: #FFFFFF !important; }}
         .vr-ticker-left, .vr-ticker-right {{
             display: flex;
             align-items: center;
@@ -132,8 +133,8 @@ def render_ticker() -> None:
             100% {{ box-shadow: 0 0 0 0   rgba(134, 239, 172, 0);    }}
         }}
         @media (prefers-reduced-motion: reduce) {{
-            .vr-dot     {{ animation: none; }}
-            .vr-total   {{ animation: none; }}
+            .vr-dot   {{ animation: none; }}
+            .vr-total {{ animation: none; }}
         }}
         .vr-live-label {{
             font-weight: 800;
@@ -156,7 +157,7 @@ def render_ticker() -> None:
             font-weight: 800;
             font-variant-numeric: tabular-nums;
         }}
-        .vr-sep {{ opacity: 0.8; }}
+        .vr-sep {{ opacity: 0.85; }}
         /* Keep page content from sliding under the ticker */
         .block-container {{ padding-bottom: 5rem !important; }}
         </style>
