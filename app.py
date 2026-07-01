@@ -159,16 +159,46 @@ st.markdown(
     a { color: var(--ada-primary); text-decoration: underline; }
     a:hover { color: var(--ada-primary-dark); }
 
-    /* Primary buttons */
-    .stButton > button[kind="primary"] {
-        background: var(--ada-primary) !important;
-        color: #FFFFFF !important;
-        border: 2px solid var(--ada-primary-dark) !important;
-        font-weight: 700 !important;
-    }
-    .stButton > button[kind="primary"]:hover {
-        background: var(--ada-primary-dark) !important;
-    }
+/* Primary buttons — force WHITE label everywhere, including nested elements */
+.stButton > button[kind="primary"],
+.stButton > button[kind="primary"] * ,
+.stButton > button[kind="primary"] p,
+.stButton > button[kind="primary"] span,
+.stButton > button[kind="primary"] div {
+    color: #FFFFFF !important;
+}
+.stButton > button[kind="primary"] {
+    background: var(--ada-primary) !important;
+    border: 2px solid var(--ada-primary-dark) !important;
+    font-weight: 700 !important;
+}
+.stButton > button[kind="primary"]:hover,
+.stButton > button[kind="primary"]:hover * {
+    background: var(--ada-primary-dark) !important;
+    color: #FFFFFF !important;
+}
+/* Disabled state — keep it readable */
+.stButton > button[kind="primary"]:disabled,
+.stButton > button[kind="primary"]:disabled * {
+    color: #FFFFFF !important;
+    background: #64748B !important;
+    border-color: #475569 !important;
+    opacity: 1 !important;
+}
+
+/* Also force white on the st.link_button primary variant used on the Contact page */
+.stLinkButton > a[kind="primary"],
+.stLinkButton > a[kind="primary"] * {
+    color: #FFFFFF !important;
+    background: var(--ada-primary) !important;
+    border: 2px solid var(--ada-primary-dark) !important;
+    text-decoration: none !important;
+}
+.stLinkButton > a[kind="primary"]:hover,
+.stLinkButton > a[kind="primary"]:hover * {
+    background: var(--ada-primary-dark) !important;
+    color: #FFFFFF !important;
+}
 
     /* Visible keyboard focus (WCAG 2.4.7) */
     *:focus-visible {
