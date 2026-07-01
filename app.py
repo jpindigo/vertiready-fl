@@ -236,18 +236,24 @@ def radar_chart(plan_score, zoning_score, proc_score):
     fig.add_trace(go.Scatterpolar(
         r=[plan_score, zoning_score, proc_score, plan_score],
         theta=["Comp. Plan", "Zoning", "Procedures", "Comp. Plan"],
-        fill="toself", fillcolor="rgba(79, 70, 229, 0.35)",
-        line=dict(color="#4f46e5", width=2),
-        marker=dict(size=8, color="#4f46e5"),
+        fill="toself",
+        fillcolor="rgba(11, 95, 165, 0.30)",   # ADA primary, 30% opacity
+        line=dict(color="#0B5FA5", width=3),
+        marker=dict(size=10, color="#0B2545", symbol="circle"),  # dark markers for shape+color redundancy
     ))
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(visible=True, range=[0, 10], tickfont=dict(size=10)),
-            angularaxis=dict(tickfont=dict(size=12, color="#0c4a6e")),
-            bgcolor="rgba(240,249,255,0.5)",
+            radialaxis=dict(visible=True, range=[0, 10],
+                            tickfont=dict(size=12, color="#0B2545"),
+                            gridcolor="#CBD5E1"),
+            angularaxis=dict(tickfont=dict(size=13, color="#0B2545", family="Arial Black"),
+                             gridcolor="#CBD5E1"),
+            bgcolor="#FFFFFF",
         ),
-        showlegend=False, margin=dict(l=40, r=40, t=20, b=20),
-        height=320, paper_bgcolor="rgba(0,0,0,0)",
+        showlegend=False,
+        margin=dict(l=40, r=40, t=20, b=20),
+        height=320,
+        paper_bgcolor="#FFFFFF",
     )
     return fig
 
@@ -255,38 +261,68 @@ def radar_chart(plan_score, zoning_score, proc_score):
 def comparison_chart(jurisdiction_scores, fl_avg):
     pillars = ["Comp. Plan", "Zoning", "Procedures"]
     fig = go.Figure(data=[
-        go.Bar(name="Selected Jurisdiction", x=pillars, y=jurisdiction_scores,
-               marker_color="#0284c7",
-               text=[f"{s:.1f}" for s in jurisdiction_scores], textposition="outside"),
-        go.Bar(name="Florida Average", x=pillars, y=fl_avg,
-               marker_color="#f59e0b",
-               text=[f"{s:.1f}" for s in fl_avg], textposition="outside"),
+        go.Bar(
+            name="Selected Jurisdiction",
+            x=pillars, y=jurisdiction_scores,
+            marker=dict(color="#4477AA", line=dict(color="#0B2545", width=1.5)),
+            text=[f"{s:.1f}" for s in jurisdiction_scores],
+            textposition="outside",
+            textfont=dict(color="#0B2545", size=13, family="Arial Black"),
+        ),
+        go.Bar(
+            name="Florida Average",
+            x=pillars, y=fl_avg,
+            marker=dict(
+                color="#CCBB44",
+                line=dict(color="#0B2545", width=1.5),
+                pattern=dict(shape="/", fgcolor="#0B2545", size=8),   # diagonal stripes for non-color redundancy
+            ),
+            text=[f"{s:.1f}" for s in fl_avg],
+            textposition="outside",
+            textfont=dict(color="#0B2545", size=13, family="Arial Black"),
+        ),
     ])
     fig.update_layout(
-        barmode="group", yaxis=dict(range=[0, 10.5], title="Score (1–10)"),
-        height=340, margin=dict(l=40, r=20, t=30, b=40),
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(240,249,255,0.4)",
-        legend=dict(orientation="h", y=1.1),
+        barmode="group",
+        yaxis=dict(range=[0, 10.5], title="Score (1–10)",
+                   tickfont=dict(color="#0B2545"), gridcolor="#CBD5E1"),
+        xaxis=dict(tickfont=dict(color="#0B2545", size=13)),
+        height=340,
+        margin=dict(l=40, r=20, t=30, b=40),
+        paper_bgcolor="#FFFFFF",
+        plot_bgcolor="#FFFFFF",
+        legend=dict(orientation="h", y=1.15, font=dict(color="#0B2545", size=13)),
     )
     return fig
 
 
 def overall_gauge(score):
     fig = go.Figure(go.Indicator(
-        mode="gauge+number", value=score, domain={"x": [0, 1], "y": [0, 1]},
-        title={"text": "Overall Readiness", "font": {"size": 16, "color": "#0c4a6e"}},
+        mode="gauge+number",
+        value=score,
+        domain={"x": [0, 1], "y": [0, 1]},
+        title={"text": "Overall Readiness", "font": {"size": 16, "color": "#0B2545"}},
+        number={"font": {"color": "#0B2545", "size": 40}},
         gauge={
-            "axis": {"range": [0, 10], "tickwidth": 1}, "bar": {"color": "#4f46e5"},
+            "axis": {"range": [0, 10], "tickwidth": 1, "tickcolor": "#0B2545",
+                     "tickfont": {"color": "#0B2545"}},
+            "bar": {"color": "#0B5FA5"},
+            "bgcolor": "#FFFFFF",
+            "borderwidth": 2,
+            "bordercolor": "#0B2545",
+            # Sequential ramp (dark → light of a single hue family) is CB-safe
             "steps": [
-                {"range": [0, 4], "color": "#fecaca"},
-                {"range": [4, 6], "color": "#fed7aa"},
-                {"range": [6, 8], "color": "#fef3c7"},
-                {"range": [8, 10], "color": "#bbf7d0"},
+                {"range": [0, 4],  "color": "#F1F5F9"},
+                {"range": [4, 6],  "color": "#CBD5E1"},
+                {"range": [6, 8],  "color": "#94A3B8"},
+                {"range": [8, 10], "color": "#64748B"},
             ],
-            "threshold": {"line": {"color": "#dc2626", "width": 3}, "thickness": 0.75, "value": 10},
+            "threshold": {"line": {"color": "#991B1B", "width": 4},
+                          "thickness": 0.85, "value": 10},
         },
     ))
-    fig.update_layout(height=260, margin=dict(l=20, r=20, t=40, b=20), paper_bgcolor="rgba(0,0,0,0)")
+    fig.update_layout(height=260, margin=dict(l=20, r=20, t=40, b=20),
+                      paper_bgcolor="#FFFFFF")
     return fig
 
 
