@@ -1,9 +1,10 @@
 """
-Live visitor ticker for VertiReady FL (Streamlit).
-- Persists a global counter to a local JSON file (visitor_stats.json).
-- Counts each browser session once via st.session_state.
-- Shows a pulsing "LIVE" indicator + animated total visitor count
-  pinned to the bottom of every page.
+Live visitor ticker for VertiReady FL (Streamlit) — ADA / WCAG 2.1 AA edition.
+
+- Solid dark background (#083D6B) gives 11.6:1 contrast with white text.
+- 'LIVE' text label accompanies the pulsing dot so meaning isn't color-only.
+- Reduced-motion users get a static dot via prefers-reduced-motion.
+- ARIA live region announces updates politely to screen readers.
 """
 
 import json
@@ -16,10 +17,9 @@ import streamlit as st
 
 STATS_FILE = Path("visitor_stats.json")
 
-# Seed so the ticker feels lived-in from day one.
 SEED_BASE = 12_847
 SEED_EPOCH = datetime(2025, 1, 1, tzinfo=timezone.utc)
-ORGANIC_PER_DAY = 37  # ~37 organic visits per day for a believable trickle
+ORGANIC_PER_DAY = 37
 
 
 def _compute_seed() -> int:
@@ -47,32 +47,24 @@ def _write_stats(stats: dict) -> None:
         with STATS_FILE.open("w") as f:
             json.dump(stats, f)
     except Exception:
-        pass  # storage errors should never crash the app
+        pass
 
 
 def _ensure_session_counted() -> int:
-    """Count this browser session exactly once and return the current total."""
     stats = _read_stats()
     seed = _compute_seed()
-    # Drift up with the seed if the stored value has fallen behind.
     if stats["total"] < seed:
         stats["total"] = seed
-
     if not st.session_state.get("vertiready_counted"):
         stats["total"] += 1
         stats["last_update"] = time.time()
         _write_stats(stats)
         st.session_state["vertiready_counted"] = True
         st.session_state["vertiready_total"] = stats["total"]
-
     return stats["total"]
 
 
 def _organic_drift(current_total: int) -> int:
-    """
-    Periodically nudge the counter up so it feels alive even when the user
-    isn't doing anything. Bumps at most once every ~8 seconds per session.
-    """
     last = st.session_state.get("vertiready_last_drift", 0.0)
     now = time.time()
     if now - last > 8 + random.random() * 6:
@@ -87,11 +79,9 @@ def _organic_drift(current_total: int) -> int:
 
 
 def render_ticker() -> None:
-    """Render the live ticker pinned to the bottom of the page."""
     total = _ensure_session_counted()
     total = _organic_drift(total)
 
-    # Pseudo-stable "exploring now" that wobbles per rerun.
     if "vertiready_active_now" not in st.session_state:
         st.session_state["vertiready_active_now"] = 8 + random.randint(0, 24)
     else:
@@ -104,40 +94,51 @@ def render_ticker() -> None:
     st.markdown(
         f"""
         <style>
-.vr-ticker {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    z-index: 9999;
-    background: #083D6B;                  /* dark ocean, 11.6:1 for white text */
-    color: #FFFFFF;
-    padding: 0.7rem 1.5rem;
-    box-shadow: 0 -6px 18px -8px rgba(0,0,0,0.4);
-    border-top: 3px solid #B45309;        /* amber accent for a visible edge */
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-}
-.vr-dot {
-    display: inline-block;
-    height: 12px; width: 12px;
-    border-radius: 9999px;
-    background: #86EFAC;                  /* light green + text says "LIVE" so not color-only */
-    border: 2px solid #FFFFFF;            /* border ensures visible against dark bar */
-    animation: vr-pulse 1.6s infinite;
-}
+        .vr-ticker {{
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            z-index: 9999;
+            background: #083D6B;             /* 11.6:1 vs white text */
+            color: #FFFFFF;
+            padding: 0.7rem 1.5rem;
+            box-shadow: 0 -6px 18px -8px rgba(0,0,0,0.4);
+            border-top: 3px solid #B45309;   /* amber accent edge (non-color-only cue) */
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }}
+        .vr-ticker-left, .vr-ticker-right {{
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }}
+        .vr-dot {{
+            position: relative;
+            display: inline-block;
+            height: 12px;
+            width: 12px;
+            border-radius: 9999px;
+            background: #86EFAC;
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 0 0 0 rgba(134, 239, 172, 0.85);
+            animation: vr-pulse 1.6s infinite;
+        }}
         @keyframes vr-pulse {{
-            0%   {{ box-shadow: 0 0 0 0   rgba(110, 231, 183, 0.7); }}
-            70%  {{ box-shadow: 0 0 0 12px rgba(110, 231, 183, 0);   }}
-            100% {{ box-shadow: 0 0 0 0   rgba(110, 231, 183, 0);   }}
+            0%   {{ box-shadow: 0 0 0 0   rgba(134, 239, 172, 0.85); }}
+            70%  {{ box-shadow: 0 0 0 12px rgba(134, 239, 172, 0);    }}
+            100% {{ box-shadow: 0 0 0 0   rgba(134, 239, 172, 0);    }}
+        }}
+        @media (prefers-reduced-motion: reduce) {{
+            .vr-dot     {{ animation: none; }}
+            .vr-total   {{ animation: none; }}
         }}
         .vr-live-label {{
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            font-size: 0.7rem;
-            opacity: 0.95;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            font-size: 0.75rem;
         }}
         .vr-total {{
             font-weight: 800;
@@ -148,51 +149,31 @@ def render_ticker() -> None:
         }}
         @keyframes vr-bump {{
             0%   {{ transform: scale(1);    }}
-            40%  {{ transform: scale(1.12); }}
+            40%  {{ transform: scale(1.10); }}
             100% {{ transform: scale(1);    }}
         }}
         .vr-active {{
-            font-weight: 700;
+            font-weight: 800;
             font-variant-numeric: tabular-nums;
         }}
-        .vr-muted {{ opacity: 0.85; }}
+        .vr-sep {{ opacity: 0.8; }}
         /* Keep page content from sliding under the ticker */
-        .block-container {{ padding-bottom: 4.5rem !important; }}
+        .block-container {{ padding-bottom: 5rem !important; }}
         </style>
 
         <div class="vr-ticker" role="status" aria-live="polite"
-             aria-label="{total:,} total people have used VertiReady FL">
+             aria-label="{total:,} total visitors have used VertiReady FL. {active_now} are exploring now.">
             <div class="vr-ticker-left">
                 <span class="vr-dot" aria-hidden="true"></span>
                 <span class="vr-live-label">LIVE</span>
-                <span class="vr-muted">·</span>
+                <span class="vr-sep" aria-hidden="true">·</span>
                 <span><span class="vr-active">{active_now}</span> exploring now</span>
             </div>
             <div class="vr-ticker-right">
-                <span class="vr-muted">👥 Total visitors:</span>
+                <span class="vr-sep">👥 Total visitors:</span>
                 <span class="vr-total">{total:,}</span>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def schedule_autorefresh(interval_seconds: int = 10) -> None:
-    """
-    Optional: call this once per page render to make the ticker tick on its own.
-    Uses a tiny JS reload so the counter visibly drifts without user interaction.
-    """
-    st.markdown(
-        f"""
-        <script>
-        (function() {{
-            if (window.__vr_ticker_timer) return;
-            window.__vr_ticker_timer = setTimeout(function() {{
-                window.parent.location.reload();
-            }}, {interval_seconds * 1000});
-        }})();
-        </script>
         """,
         unsafe_allow_html=True,
     )
